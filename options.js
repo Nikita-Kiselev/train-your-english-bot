@@ -1,8 +1,6 @@
-const words = require('./fetchTranslatedWords.js');
 
 module.exports =  {
   gameOptions (translatedWords){
-  console.log(translatedWords, 'translated options');
     return {
       reply_markup: JSON.stringify({
         inline_keyboard: [

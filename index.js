@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const TelegramApi = require("node-telegram-bot-api");
 const fetchRandomWords = require("./fetchRandomWords.js");
 const fetchTranslatedWords = require("./fetchTranslatedWords.js");
@@ -18,7 +18,7 @@ async function startGame(chatId) {
   try {
     const randomWords = await fetchRandomWords();
     const translatedWords = await fetchTranslatedWords(randomWords);
-    chats[chatId] = translatedWords[0];
+    chats[chatId] = [translatedWords[0],randomWords[0]];
     await TelegramBot.sendMessage(
       chatId,
       `Как переводится слово ${randomWords[0]}`
@@ -62,21 +62,22 @@ TelegramBot.on("message", async (msg) => {
 
 TelegramBot.on("callback_query", async (msg) => {
   try {
-    const data = msg.data;
-    const chatId = msg.message.chat.id;
+    const data = await msg.data;
+    const chatId = await msg.message.chat.id;
     if (data === "/again") {
       return startGame(chatId);
     }
-    if (data == chats[chatId]) {
+    if (data == chats[chatId][0]) {
       await TelegramBot.sendMessage(
         chatId,
-        `Поздравляю, ты правильно перевёл слово ${chats[chatId]}`,
+        `Поздравляю, ты правильно перевёл слово ${chats[chatId][1]} - ${chats[chatId][0]}`,
         againOptions
       );
     } else {
+      console.log(chats[chatId][0], data)
       await TelegramBot.sendMessage(
         chatId,
-        `К сожалению ты не правильно первёл слово, оно переводится как ${chats[chatId]}`,
+        `К сожалению ты не правильно первёл слово, оно переводится как ${chats[chatId][0]}`,
         againOptions
       );
     }
@@ -84,3 +85,4 @@ TelegramBot.on("callback_query", async (msg) => {
     console.warn(err);
   }
 });
+
